@@ -59,9 +59,12 @@ def mask_barrel(image, delta_a=0, delta_b=0) -> np.ndarray:
 
     # Intersection of the two masks
     mask = mask_a * mask_b
+
     cv2.imshow("mask_a", mask_a)
     cv2.imshow("mask_b", mask_b)
 
+    mask = np.clip(mask, 0, 1)
+    
     print(f"{thresh_a=}, {min=}, {max=}, {thresh_b=}")
 
     return mask
@@ -84,7 +87,6 @@ def select_area(event, x, y, flags, params):
     else:
         if selection_start:
             selection = cv2.rectangle(selection, selection_start, [x, y], 1, -1)
-            print(x, y)
 
 
 def run_mask_app():
@@ -109,9 +111,8 @@ def run_mask_app():
 
             mask = mask_barrel(img, delta_a, delta_b)
 
-            while 1:
+            while True:
                 cv2.imshow("test", img)
-                print(np.any(selection))
 
                 # If the selection is empty keep the original mask.
                 # If a selection is taking place, selection_start will be true
@@ -121,6 +122,7 @@ def run_mask_app():
                 else:
                     selection_mask = mask
 
+                selection_mask = np.clip(selection_mask, 0, 1)
                 cv2.imshow("mask", selection_mask)
                 cv2.setMouseCallback("mask", select_area)
 
@@ -131,8 +133,7 @@ def run_mask_app():
                     cv2.destroyAllWindows()
                     quit()
                 elif k == 101:  # e saves mask and goes to next image
-                    print("this works")
-                    cv2.imwrite(f"{INPUT_DIR}/masks/{mask_name}", selection_mask)
+                    cv2.imwrite(f"{INPUT_DIR}/masks/{mask_name}", selection_mask * 255)
                     break
                 elif k == 119:  # w increments thresh_a
                     delta_a += 5
