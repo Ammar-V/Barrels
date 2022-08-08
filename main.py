@@ -1,29 +1,26 @@
-from torch import outer
 from mask_classical import mask_barrel
 import cv2
 
 import os
 
 INPUT_DIR = 'images/'
-OUTPUT_DIR = 'masks/'
+OUTPUT_DIR = 'output/'
 
 
 def create_masks(input_dir, output_dir):
 
     for file in os.listdir(input_dir):
-        if file.endswith('.png'):
+        if file.endswith('.png'):  # Skip sub folders
 
             img = cv2.imread(os.path.join(input_dir, file))
-            # h, w, _ = img.shape
-            # img = cv2.resize(img, (256, 256))
 
-            mask = mask_barrel(img, labelling=False, name=file) * 255
-            # mask = cv2.resize(mask, (w, h), cv2.INTER_AREA)
-            cv2.imwrite(os.path.join(output_dir, f'mask_{file}'), mask)
+            mask = mask_barrel(img, labelling=False, name=file) * 255  # Mask
+            cv2.imwrite(os.path.join(output_dir, file), mask)  # Save mask
 
 
 if __name__ == '__main__':
 
+    # Make output dir if it doesn't exist
     try:
         os.mkdir(OUTPUT_DIR)
     except:
