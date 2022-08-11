@@ -20,11 +20,11 @@ python main.py
 
 ## How did I come up with this?
 
-To start off this challenge, I first looked at the dataset and tried to get an undestanding of the task at hand. I noticed the different lighting conditions, and several other objects/text that shared characteristics with the Barrels. I decided that a classical approach would suffice as compared to a deep learning approach, which would require training on a larger dataset.
+To start off this challenge, I first looked at the dataset and tried to get an undestanding of the task at hand. I noticed the different lighting conditions and several other objects/text that shared characteristics with the Barrels. I decided that a classical approach would suffice as compared to a deep learning approach, which would require training on a larger dataset.
 
-The main classical approach I wanted to pursue was thresholding. Although, I knew the challenging part would be deriving the thresholding values depending on the lighting in the image. I tried to process the input into images with the most distinction between the Barrel and background before performing thresholding, such that it was more reliable.
+The main classical approach I wanted to pursue was thresholding. Although, I knew the challenging part would be deriving the thresholding values depending on the lighting in the image. I tried to process the input into images with the most distinction between the Barrel and background before performing thresholding, so that it would be more reliable.
 
-I first created a notebook on Google Colab (`Barrels.ipnb`) **and** ported over the dataset to my GDrive so that I could tinker with color channels. In the past, I had worked with YCbCr and RGB channels. I thought that it would be helpful to take a closer look at the dataset images under the eyes of different color channels and spaces. While seperating the images into their respective channels, I was looking for channels that highlighted the difference between the Barrel and the background.
+I created a notebook on a Google Colab [notebook] and ported over the dataset to my GDrive so that I could tinker with color channels. In the past, I had worked with YCbCr and RGB channels. I thought that it would be helpful to take a closer look at the dataset images under the eyes of different color channels and spaces. While seperating the images into their respective channels, I was looking for channels that highlighted the difference between the Barrel and the background.
 
 My initial experiments with the YCbCr channels were as follows:
 
@@ -49,7 +49,7 @@ In this image, we can see a much more clear distinction between the Barrel and t
 
 ![image showing Cr - Y with thresholding](assets/cry_t.png "Better Cr- Y")
 
-These results drove my approach for the rest of this coding challenge. I used the idea of combining channels and then performing thresholding to mask Barrels in the provided images.
+Following this, I used the idea of combining channels and then performing thresholding to mask Barrels in the provided images.
 
 I tried this method with several other images from the dataset (with different lighting conditions, pylons in the background, and, coca-cola). Additionally, I researched other color spaces that would help highlight red in images and I came across HSV. Images in the S channel had the clearest distinction between the Barrel and background and looked like: 
 
@@ -72,20 +72,20 @@ Threhsolding with `min=0` and `max=20` then gives a binary segmentation mask. Al
 **(a3)**  
 ![mask](assets/mask_a_bad.png "mask 3")
 
-When I hit this roadblock, I turned again towards combining color channels. Specifically, I looked at RGB.
+To solve this issue, I looked at other color spaces.
 
 ### Combining masks (Two are better than one)
 
-In the RGB space, the red channel is high when the pixel is either red or white. When the pixel is white, the green and blue channels are also higher values. Therefore, I filtered all the pixels where the difference between the red and blue/green was greater than a threshold.
+In the RGB space, the red channel is high when the pixel is either red or white. When the pixel is white, the green and blue channels are also higher values. Therefore, I filtered all the pixels where the difference between the red and blue/green was greater than a threshold (i.e. a purely red pixel).
 
 ```
 bg = np.mean(np.array([b, g]), axis=0)
 mask_b = (r - bg) > thresh
 ```
 
-The threhsold value is derived from the brightness of the red patches in the images (`brightness_mask`). A larger value suggests that the image has bright patches of red, and thus the threshold should be larger. A smaller value suggests low light conditions and therefore a lower threshold.
+The threhsold value is derived from the brightness of the red patches in the images (`brightness_mask`). A larger `brightness_mask` value suggests that the image has bright patches of red, and thus the threshold should be larger. A smaller value suggests low light conditions and therefore a lower threshold.
 
-Some masks generated through this technique are:
+Similar images put through this technique result in:
 
 
 **(b1)**  
@@ -97,7 +97,7 @@ Some masks generated through this technique are:
 **(b3)**  
 ![mask](assets/mask_b_bad.png "mask 3")
 
-Comparing *a1-a3* and *b1-b3* (where *a* represents `mask_a` and *b* represents `mask_b`), some masks are good whereas some are noisy. However, when combining these masks, the results are more positive.
+Comparing *a1-a3* and *b1-b3* (where *a* represents `mask_a` and *b* represents `mask_b`), some masks are good whereas some are noisy. However, when combining these masks, the results are generally more positive.
 
 **(c1)**  
 ![mask](assets/mask_c_good.png "mask 1")
@@ -120,7 +120,9 @@ Most of the combined masks produce reliable segmentations, although some are sti
 
 ## Next Steps
 
-The method I used is not perfect. Some of the clear issues are that objects that are similar in color are also segmented (pylons, coca-cola, exit sign, etc). To improve on this, I would use a deep learning model such as UNet. To find the best threhsold values, I used `label.py` to make incremental changes to the threshold and observe changes in `mask_a` and `mask_b`. As an extension to this, it can also be used as a rudimentary data labelling tool. Data labelling is one of the most tedious and repetitive tasks in deep learning and I hope that `label.py` makes the process quicker.
+The method I used is not perfect. Some of the clear issues are that objects that are similar in color are also segmented (pylons, coca-cola, exit sign, etc). To improve on this, I would use a deep learning model such as UNet that is widely known to be used for segmentation tasks. 
+
+In my current implementaion, to find the best threhsold values, I used `label.py` to make incremental changes to the threshold and observe changes in `mask_a` and `mask_b`. As an extension to this, it can also be used as a rudimentary data labelling tool. Data labelling is one of the most tedious and repetitive tasks in deep learning and I hope that `label.py` makes the process quicker.
 
 ### How to use `label.py`
 
@@ -135,3 +137,7 @@ python label.py
 5. Use the *r* key to reset a selection.
 6. To save `mask` to the output directory, press *e*
 7. To move to the next image, press the *spacebar*
+
+---
+
+[notebook]: https://colab.research.google.com/drive/14jy8meWag9ZsD0b9kWUVZ2cWGtd4aXAL?usp=sharing

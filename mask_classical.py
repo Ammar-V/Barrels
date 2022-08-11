@@ -16,7 +16,7 @@ def mask_barrel(image, delta_a=0, delta_b=0, labelling=True, name='') -> np.ndar
     """
     This function takes an input image and ouputs a segmentation mask for red barrels.
     The mask consists of an intersection between mask_a and mask_b. mask_a is computed \
-        by taking the combining the Cr, S, Y, and V channels in a particular manner.\
+        by taking the combining the Cr, S, and Y channels in a particular manner.\
         Thresholding is performed on this to produce a binary mask. mask_b uses a similar techinque\
         but instead utilizes the RGB channel. The B and G channesl are combined (mean)\
         and then compared with the red channel. The thresholding works as follows:\
@@ -28,7 +28,7 @@ def mask_barrel(image, delta_a=0, delta_b=0, labelling=True, name='') -> np.ndar
     # Split into YCbCr channels
     img = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     img_a = rgb2ycbcr(img)
-    y, cb, cr = cv2.split(img_a)
+    y, _, cr = cv2.split(img_a)
 
     # Split into HSV channels
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
@@ -41,13 +41,13 @@ def mask_barrel(image, delta_a=0, delta_b=0, labelling=True, name='') -> np.ndar
     mask_a_pre = np.clip(mask_a_pre, 0, 255)
 
     # Peform thresholding for mask_a
-    brightness = v.mean()
     min, max = delta_a, delta_a + 20
     _, mask_a = cv2.threshold(
         mask_a_pre, min, max, cv2.THRESH_BINARY, cv2.THRESH_OTSU)
     mask_a = mask_a.astype("float32")
 
     # Gives a measure of how bright the red patches are
+    brightness = v.mean()
     brightness_mask = (np.clip(mask_a, 0, 1) * v).mean()
 
     # A white pixel is: (255, 255, 255) whereas a red pixel is (255, 0, 0)
@@ -63,12 +63,12 @@ def mask_barrel(image, delta_a=0, delta_b=0, labelling=True, name='') -> np.ndar
     elif brightness_mask > 3:  # range for barrel in normal lighting conditions
         thresh_b = int(brightness * 0.5)
 
-    else:  # If barrel is insanely tiny
+    else:  # If barrel is insanely tiny or its dark
         thresh_b = int(brightness*0.5) - 30
 
     thresh_b += delta_b
 
-    # Bound it between suitable values
+    # Bind it between suitable values
     thresh_b = np.clip(thresh_b, 0, 255)
 
     # Perform thresholding for mask_b

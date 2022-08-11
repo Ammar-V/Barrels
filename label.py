@@ -14,17 +14,21 @@ selection_start, selection = False, None
 
 
 def select_area(event, x, y, flags, params):
+    '''
+    This is an event handler used to set the selection area
+
+    '''
     global selection_start
     global selection
 
     # print(f"Left click at {x} and {y}")
     if event == cv2.EVENT_LBUTTONDBLCLK:
-        if selection_start:
+        if selection_start:  # If a selection is taking place, end it
             selection_start = False
         else:
             selection_start = x, y
         print(f"Left click at {x} and {y}")
-    else:
+    else:  # Update the selection as the pointer moves
         if selection_start:
             selection = cv2.rectangle(
                 selection, selection_start, [x, y], 1, -1)
@@ -62,7 +66,6 @@ def run_mask_app(size=256):
                 # else:
                 selection_mask = mask
 
-                # selection_mask = np.clip(selection_mask, 0, 1)
                 cv2.imshow("mask", selection_mask * 255)
                 cv2.setMouseCallback("mask", select_area)
 
