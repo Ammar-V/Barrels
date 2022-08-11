@@ -9,8 +9,6 @@ def post_processing(image):
     new = cv2.blur(img, (7, 7))
     new = (new > 0.5).astype('uint8')
 
-    # new = cv2.GaussianBlur(new, (3, 3), 0)
-    # new = cv2.GaussianBlur(new, (3, 3), 0)
     return new
 
 
