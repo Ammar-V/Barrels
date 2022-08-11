@@ -108,7 +108,7 @@ Comparing *a1-a3* and *b1-b3* (where *a* represents `mask_a` and *b* represents 
 **(c3)**  
 ![mask](assets/mask_c_bad.png "mask 3")
 
-Most of the combined masks produce reliable segmentations, although some are still noisy. To address this, prost processing is applied through the `post_processing` function.
+Most of the combined masks produce reliable segmentations, although some are still noisy. To address this, post processing is applied through the `post_processing` function.
 
 **Before**  
 ![mask with noise](assets/before_processing.png "Noisy mask")
