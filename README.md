@@ -4,7 +4,7 @@ This repo was created to complete the coding challenge for the 2D Object Detecti
 
 ## How to run
 
-You will, at the least, need an `images/` folder in the root directory (next to the `main.py`) with *.png?raw=true* input files.
+You will, at the least, need an `images/` folder in the root directory (next to the `main.py`) with *.png* input files.
 
 ```
 images/
